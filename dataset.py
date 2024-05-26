@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
 
-class OxfordPets(Dataset):
+class StarganV2AFHQ(Dataset):
     def __init__(self,
                  data_path: str,
                  split: str,
@@ -49,7 +49,6 @@ class VAEDataset(LightningDataModule):
             **kwargs,
     ):
         super().__init__()
-
         self.data_dir = data_path
         self.train_batch_size = train_batch_size
         self.val_batch_size = val_batch_size
@@ -60,22 +59,20 @@ class VAEDataset(LightningDataModule):
     def setup(self, stage: Optional[str] = None) -> None:
         train_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
-            # transforms.CenterCrop(500),
             transforms.Resize(self.patch_size),
             transforms.ToTensor(),
         ])
         val_transforms = transforms.Compose([
             transforms.RandomHorizontalFlip(),
-            # transforms.CenterCrop(500),
             transforms.Resize(self.patch_size),
             transforms.ToTensor(),
         ])
-        self.train_dataset = OxfordPets(
+        self.train_dataset = StarganV2AFHQ(
             self.data_dir,
             split='train',
             transform=train_transforms,
         )
-        self.val_dataset = OxfordPets(
+        self.val_dataset = StarganV2AFHQ(
             self.data_dir,
             split='val',
             transform=val_transforms,

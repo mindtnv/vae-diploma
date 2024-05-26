@@ -1,4 +1,6 @@
 import os
+from datetime import datetime
+
 from torch import optim
 from models import BaseVAE
 from models.types_ import *
@@ -40,6 +42,19 @@ class VAEXperiment(pl.LightningModule):
                                             optimizer_idx=optimizer_idx,
                                             batch_idx=batch_idx)
         self.log_dict({f"val_{key}": val.item() for key, val in val_loss.items()}, sync_dist=True)
+
+    def sample_specific_class(self, labels):
+        samples = self.model.sample(
+            1,
+            self.curr_device,
+            labels=labels
+        )
+        vutils.save_image(samples.cpu().data,
+                          os.path.join(self.logger.log_dir,
+                                       "Samples",
+                                       f"{self.logger.name}_{datetime.today().strftime('%Y-%m-%d')}.png"),
+                          normalize=True,
+                          nrow=1)
 
     def sample_images(self):
         test_input, test_label = next(iter(self.trainer.datamodule.test_dataloader()))
